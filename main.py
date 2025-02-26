@@ -11,6 +11,13 @@ st.set_page_config(
     layout="wide"
 )
 
+# Branding
+st.markdown("""
+    <div style='position: fixed; top: 0; left: 0; padding: 10px; color: #666; font-size: 20px; font-weight: 300;'>
+    Wyndo Search
+    </div>
+    """, unsafe_allow_html=True)
+
 # Initialize session state
 if 'data' not in st.session_state:
     data_gen = DataGenerator(n_samples=1000)
@@ -33,7 +40,7 @@ with tab1:
     st.title("Click-through Rate Analytics Dashboard")
 
     # Key Terms and Definitions
-    with st.expander("📚 Key Terms and Definitions"):
+    with st.expander("Key Terms and Definitions"):
         st.markdown("""
         **Important Metrics Explained:**
         - **Click-through Rate (CTR)**: The percentage of users who click on a product after viewing it
@@ -142,7 +149,7 @@ with tab2:
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown("### 🎯 Model Performance")
+        st.markdown("### Model Performance")
         st.markdown(f"""
         Our current model achieves:
         - **{st.session_state.model_score:.1%}** prediction accuracy
@@ -151,7 +158,7 @@ with tab2:
         """)
 
     with col2:
-        st.markdown("### 🔍 Key Findings")
+        st.markdown("### Key Findings")
         st.markdown("""
         - Desktop users show highest engagement
         - Time spent on product pages strongly indicates interest

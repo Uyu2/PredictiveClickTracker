@@ -40,15 +40,16 @@ class DashboardVisualizer:
         product_ctr = df.groupby('search_term')['clicked'].mean().reset_index()
         product_ctr.columns = ['Product', 'Click Rate']
 
-        # Merge search counts with click-through rates
+        # Merge search counts with click-through rates and limit to top 15
         search_data = search_counts.merge(product_ctr, on='Product')
         search_data['Click Rate'] = search_data['Click Rate'] * 100
+        search_data = search_data.head(15)  # Limit to top 15 products
 
         fig = px.bar(
             search_data,
             x='Product',
             y='Search Count',
-            title='Product Search Popularity and Success Rate',
+            title='Top 15 Most Searched Products and Their Success Rates',
             color='Click Rate',
             labels={
                 'Product': 'Product Name',
