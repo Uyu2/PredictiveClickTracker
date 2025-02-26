@@ -32,6 +32,44 @@ class DashboardVisualizer:
         return fig
 
     @staticmethod
+    def create_search_frequency_plot(df):
+        search_counts = df['search_term'].value_counts().reset_index()
+        search_counts.columns = ['Product', 'Search Count']
+
+        # Calculate click-through rate for each product
+        product_ctr = df.groupby('search_term')['clicked'].mean().reset_index()
+        product_ctr.columns = ['Product', 'Click Rate']
+
+        # Merge search counts with click-through rates
+        search_data = search_counts.merge(product_ctr, on='Product')
+        search_data['Click Rate'] = search_data['Click Rate'] * 100
+
+        fig = px.bar(
+            search_data,
+            x='Product',
+            y='Search Count',
+            title='Product Search Popularity and Success Rate',
+            color='Click Rate',
+            labels={
+                'Product': 'Product Name',
+                'Search Count': 'Number of Searches',
+                'Click Rate': 'Click-through Rate (%)'
+            },
+            color_continuous_scale='Viridis'
+        )
+
+        fig.update_layout(
+            title_x=0.5,
+            title_font_size=18,
+            height=500,
+            margin=dict(t=50, l=0, r=0, b=0),
+            xaxis_tickangle=45,
+            showlegend=True
+        )
+
+        return fig
+
+    @staticmethod
     def create_click_rate_by_category(df, category):
         click_rates = df.groupby(category)['clicked'].agg(['mean', 'count']).reset_index()
         click_rates.columns = [category, 'click_rate', 'sample_size']
@@ -132,6 +170,40 @@ class DashboardVisualizer:
             title_font_size=18,
             height=400,
             margin=dict(t=50, l=0, r=0, b=0)
+        )
+
+        return fig
+    
+    @staticmethod
+    def create_decision_tree_visualization(model, data):
+        # Create a simplified decision tree visualization
+        node_trace = go.Scatter(
+            x=[1, 2, 3, 4, 5],
+            y=[1, 2, 1.5, 1.8, 1.2],
+            mode='markers+text',
+            marker=dict(size=30, color='lightblue'),
+            text=['User Visit', 'Desktop?', 'Long Visit?', 'Many Searches?', 'Clicked!'],
+            textposition='bottom center'
+        )
+
+        # Add connecting lines
+        edge_trace = go.Scatter(
+            x=[1, 2, 2, 3, 3, 4, 4, 5],
+            y=[1, 2, 2, 1.5, 1.5, 1.8, 1.8, 1.2],
+            mode='lines',
+            line=dict(width=2, color='gray'),
+            hoverinfo='none'
+        )
+
+        fig = go.Figure(data=[edge_trace, node_trace])
+        fig.update_layout(
+            title='Simplified Decision Path Visualization',
+            title_x=0.5,
+            showlegend=False,
+            height=400,
+            margin=dict(t=50, l=0, r=0, b=0),
+            xaxis=dict(showticklabels=False, showgrid=False),
+            yaxis=dict(showticklabels=False, showgrid=False)
         )
 
         return fig
