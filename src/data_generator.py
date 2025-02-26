@@ -52,11 +52,12 @@ class DataGenerator:
         browser_effect = {'chrome': 0.05, 'firefox': 0, 'safari': 0, 'edge': -0.05}
 
         click_probs = np.array([
-            base_prob +
-            device_effect[dev] +
-            browser_effect[br] +
-            (-0.1 if ex else 0.1) +  # Exit effect
-            min(0.2, ts/1000)  # Time on screen effect
+            0 if ex else (  # If user exited, click probability is 0
+                base_prob +
+                device_effect[dev] +
+                browser_effect[br] +
+                min(0.2, ts/1000)  # Time on screen effect
+            )
             for dev, br, ex, ts in zip(
                 data['device_type'],
                 data['browser'],
@@ -67,4 +68,8 @@ class DataGenerator:
 
         data['clicked'] = np.random.binomial(n=1, p=np.clip(click_probs, 0, 1))
 
-        return pd.DataFrame(data)
+        # Ensure exited_screen=1 always means clicked=0
+        df = pd.DataFrame(data)
+        df.loc[df['exited_screen'] == 1, 'clicked'] = 0
+
+        return df

@@ -27,13 +27,36 @@ if st.sidebar.button("Regenerate Data"):
     st.session_state.model_score = st.session_state.model.train(st.session_state.data)
 
 # Main content
-tab1, tab2 = st.tabs(["Analytics Dashboard", "Dataset Explorer"])
+tab1, tab2, tab3 = st.tabs(["Analytics Dashboard", "Model Insights", "Dataset Explorer"])
 
 with tab1:
     st.title("Click-through Rate Analytics Dashboard")
+
+    # Key Terms and Definitions
+    with st.expander("📚 Key Terms and Definitions"):
+        st.markdown("""
+        **Important Metrics Explained:**
+        - **Click-through Rate (CTR)**: The percentage of users who click on a product after viewing it
+        - **Bounce Rate**: Percentage of users who leave the page without any interaction. When a user bounces (exits), 
+          they cannot have clicked on a product, as they left before taking any action
+        - **Time on Screen**: How long users spend viewing a product before making a decision
+        - **Search Count**: Number of different products a user looked for
+
+        **Device Types:**
+        - **Desktop**: Traditional computer access
+        - **Mobile**: Smartphone access
+        - **Tablet**: iPad or similar device access
+
+        **Traffic Sources:**
+        - **Direct**: Users coming directly to the site
+        - **Search**: Users from search engines
+        - **Social**: Users from social media
+        - **Email**: Users from email campaigns
+        """)
+
     st.markdown("""
     This dashboard analyzes user behavior and predicts click-through rates using advanced machine learning techniques.
-    The model achieves {:.1%} accuracy in predicting user clicks.
+    Our predictive model achieves {:.1%} accuracy in determining which factors lead to successful product interactions.
     """.format(st.session_state.model_score))
 
     # Top metrics
@@ -51,13 +74,25 @@ with tab1:
     # Feature importance analysis
     st.subheader("What Drives User Clicks?")
     st.markdown("""
-    Using Random Forest analysis, we've identified the most important factors that influence whether a user will click.
-    This helps us understand which aspects of the user experience have the biggest impact on engagement.
+    Using advanced machine learning (Random Forest), we've identified the key factors that influence 
+    whether a user will click on a product. This analysis helps us understand which aspects of the 
+    user experience have the biggest impact on customer engagement.
     """)
     feature_importance_plot = DashboardVisualizer.create_feature_importance_plot(
         st.session_state.model.feature_importance
     )
     st.plotly_chart(feature_importance_plot, use_container_width=True)
+
+    # Product search analysis
+    st.subheader("Most Searched Products")
+    st.markdown("""
+    Understanding which products attract the most customer interest helps optimize 
+    inventory and marketing strategies.
+    """)
+    search_frequency_plot = DashboardVisualizer.create_search_frequency_plot(
+        st.session_state.data
+    )
+    st.plotly_chart(search_frequency_plot, use_container_width=True)
 
     # Click-through rate by category
     st.subheader("User Behavior Analysis")
@@ -65,7 +100,7 @@ with tab1:
 
     with col1:
         st.markdown("#### Click Rates by Device")
-        st.markdown("Compare how users on different devices interact with content")
+        st.markdown("Compare how users on different devices interact with products")
         device_plot = DashboardVisualizer.create_click_rate_by_category(
             st.session_state.data, 'device_type'
         )
@@ -79,23 +114,62 @@ with tab1:
         )
         st.plotly_chart(browser_plot, use_container_width=True)
 
-    # Time series and correlation
-    st.subheader("Temporal and Relationship Analysis")
+    # Time series
+    st.subheader("Click Rate Trends Over Time")
+    st.markdown("Track how customer engagement changes over the analysis period")
+    time_series = DashboardVisualizer.create_time_series_plot(st.session_state.data)
+    st.plotly_chart(time_series, use_container_width=True)
+
+with tab2:
+    st.title("Model Insights & Predictions")
+
+    st.markdown("""
+    ### Understanding Our Predictive Models
+
+    We use two powerful machine learning models to analyze and predict customer behavior:
+
+    1. **Random Forest Model**
+    - Combines multiple decision trees for robust predictions
+    - Analyzes patterns across different customer behaviors
+    - Provides reliable importance scores for different factors
+
+    2. **Decision Tree Analysis**
+    - Creates clear decision pathways
+    - Helps understand specific customer segments
+    - Easier to interpret and explain
+    """)
+
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown("#### Click Rate Trends Over Time")
-        st.markdown("Track how engagement changes over the analysis period")
-        time_series = DashboardVisualizer.create_time_series_plot(st.session_state.data)
-        st.plotly_chart(time_series, use_container_width=True)
+        st.markdown("### 🎯 Model Performance")
+        st.markdown(f"""
+        Our current model achieves:
+        - **{st.session_state.model_score:.1%}** prediction accuracy
+        - Trained on {len(st.session_state.data):,} customer interactions
+        - Updated with latest data
+        """)
 
     with col2:
-        st.markdown("#### Feature Correlations")
-        st.markdown("Heat map showing relationships between different metrics")
-        correlation = DashboardVisualizer.create_correlation_heatmap(st.session_state.data)
-        st.plotly_chart(correlation, use_container_width=True)
+        st.markdown("### 🔍 Key Findings")
+        st.markdown("""
+        - Desktop users show highest engagement
+        - Time spent on product pages strongly indicates interest
+        - Browser choice significantly impacts click rates
+        """)
 
-with tab2:
+    # Decision paths visualization
+    st.subheader("Customer Decision Pathways")
+    st.markdown("""
+    This visualization shows how different factors combine to influence customer decisions.
+    Thicker lines indicate more common customer journeys.
+    """)
+    decision_tree_viz = DashboardVisualizer.create_decision_tree_visualization(
+        st.session_state.model, st.session_state.data
+    )
+    st.plotly_chart(decision_tree_viz, use_container_width=True)
+
+with tab3:
     st.title("Dataset Explorer")
 
     # Filters
